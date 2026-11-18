@@ -34,6 +34,9 @@ int main(int argc, char** argv) {
     for (long status : {0, 200, 401, 403, 429, 500, 503}) assert(!UseBundledExclusions(status));
     mm_contents_policy empty{};
     for (const auto* path : {"sd:/ATMOSPHERE/USB_CONTENT", "atmosphere/usb_content/index.bin",
+         "atmosphere/usb_badges/0100000000010000-0.ubg", "atmosphere/usb_content-repair.pending",
+         "sdmc:/ATMOSPHERE/USB_CONTENT-REPAIR-0123456789ABCDEF/journal.bin",
+         "atmosphere/usb_content-recovery-0123456789abcdef/old.bin",
          "config/nexusmanager/network.ini", "config/nexus-manager/settings.ini"}) {
         assert(mm_is_protected_install_path(&empty, path, false));
         assert(mm_is_protected_install_path(&empty, path, true));
@@ -41,6 +44,10 @@ int main(int argc, char** argv) {
     assert(mm_keep_install_parent(&empty, "config"));
     assert(mm_keep_install_parent(&empty, "atmosphere"));
     assert(!mm_is_protected_install_path(&empty, "atmosphere/usb_content-old/index.bin", false));
+    assert(!mm_is_nexus_library_path("atmosphere/usb_badges-extra/file.bin"));
+    assert(!mm_is_nexus_library_path("atmosphere/contents/00ff0000636c6bff/exefs.nsp"));
+    assert(!mm_is_nexus_library_path("atmosphere/kips/hoc.kip"));
+    assert(!mm_is_nexus_library_path("config/nexus-hats-installer/hats-staging/atmosphere/usb_content/title_map.bin"));
     assert(!mm_is_protected_install_path(&empty, "switch/nexusmanager/NexusManager.nro", false));
     assert(!mm_is_protected_install_path(&empty, "switch/.overlays/usb-content-status.ovl", false));
     if (argc > 1) {

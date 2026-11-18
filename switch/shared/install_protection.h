@@ -5,7 +5,7 @@
 #include "managed_switch_apps.h"
 
 /* Shared by the NRO backup and bare-metal installer. No platform dependencies. */
-#define MM_CONTENTS_PROTECTION_MARKER "Nexus install protection v1"
+#define MM_CONTENTS_PROTECTION_MARKER "Nexus install protection v2"
 #define MM_CONTENTS_POLICY_PATH "/config/nexus-hats-installer/managed-sysmodules.txt"
 #define MM_MAX_EXTRA_SYSMODULES 64
 #define MM_MAX_PRESERVE_PATHS 1024
@@ -180,10 +180,30 @@ static inline int mm_is_managed_switch_path(const char* path, int is_directory) 
     return 0;
 }
 
+// USB repair snapshots use generated names next to usb_content. Protect the
+// reserved prefixes rather than a fixed list of timestamped directories.
+static inline int mm_path_has_prefix(const char* path, const char* prefix) {
+    path = mm_sd_relative_path(path);
+    while (*prefix) {
+        const char c = *path == '\\' ? '/' : mm_path_lower(*path);
+        if (c != *prefix++) return 0;
+        ++path;
+    }
+    return 1;
+}
+
+static inline int mm_is_nexus_library_path(const char* path) {
+    return mm_path_is_within(path, "atmosphere/usb_content") ||
+        mm_path_is_within(path, "atmosphere/usb_badges") ||
+        mm_path_is_within(path, "atmosphere/usb_content-repair.pending") ||
+        mm_path_has_prefix(path, "atmosphere/usb_content-repair-") ||
+        mm_path_has_prefix(path, "atmosphere/usb_content-recovery-");
+}
+
 static inline int mm_is_protected_install_path(const mm_contents_policy* policy, const char* path, int is_directory) {
     // The running installer owns its versioned files. A HATS pack must never
     // downgrade them. The staging tree is temporary input, not installed data.
-    return mm_path_is_within(path, "atmosphere/usb_content") ||
+    return mm_is_nexus_library_path(path) ||
         mm_path_is_within(path, "config/nexusmanager") ||
         mm_path_is_within(path, "config/nexus-manager") ||
         mm_path_is_within(path, "switch/nexus-hats-installer") ||

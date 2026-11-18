@@ -135,7 +135,7 @@ int file_copy(const char *src, const char *dst) {
     if (mm_path_is_root(dst, "config/nexus-hats-installer/managed-sysmodules.txt")) return FR_OK;
 
     // Never overwrite game/mod files or unrecognised Switch files.
-    if (mm_is_excluded_path(contents_policy, dst)) {
+    if (mm_is_nexus_library_path(dst) || mm_is_excluded_path(contents_policy, dst)) {
         log_write("EXCLUDE: %s\n", dst);
         return FR_OK;
     }
@@ -322,7 +322,7 @@ int folder_copy(const char *src, const char *dst) {
     if (!dst_path) {
         return FR_NOT_ENOUGH_CORE;
     }
-    if (mm_is_excluded_path(contents_policy, dst_path)) {
+    if (mm_is_nexus_library_path(dst_path) || mm_is_excluded_path(contents_policy, dst_path)) {
         log_write("EXCLUDE: %s\n", dst_path);
         free(dst_path);
         return FR_OK;

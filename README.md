@@ -40,6 +40,12 @@ The original backup and installation options are retained. Existing game mods,
 unrecognised homebrew and port data are protected during HATS updates. Nexus USB
 library indexes and Nexus Manager settings are protected as well.
 
+Version 1.0.1 also protects USB HOME badge data and adjacent repair/recovery
+journals and snapshots. All four installation modes keep these files, even
+with an empty online exclusion list. Incoming packs cannot replace them or
+import another card's USB mappings onto a fresh card. HOC and other managed
+sysmodules remain updateable.
+
 Nexus HATS Installer has its own application ID (`01004E5848490000`) and uses
 `switch/nexus-hats-installer` and `config/nexus-hats-installer`.
 

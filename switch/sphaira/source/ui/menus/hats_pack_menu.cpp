@@ -158,6 +158,7 @@ auto FetchGithubExclusions(ProgressBox* pbox, mm_contents_policy& policy, std::s
 }
 
 auto PrepareProtectedInstaller(ProgressBox* pbox, fs::FsNativeSd& fs, const fs::FsPath& payload, std::string& error) -> Result {
+    hats_log_write("hats: preserving this card's USB maps, HOME badges and repair/recovery data\n");
     if (const auto rc = App::GetApp()->m_bundled_assets_result; R_FAILED(rc)) {
         error = "The app could not repair its files. Check free space and the SD card, then reopen the app.";
         return rc;

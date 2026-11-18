@@ -7,6 +7,10 @@ it with the same include paths and yyjson object as release_logic_test below.
 
 `payload_fs_test.cpp` also runs replacement and copying with stale USB indexes and
 Manager settings in a simulated pack: the existing user files must survive.
+It exercises all four install-mode operation sequences with an empty policy,
+including title/content/location maps, HOME badges, pending repair journals,
+repair backups and recovery snapshots. A fresh card must reject foreign mapping
+data, including direct file-copy calls. Staging cleanup must still work.
 
 Hardware test: launch the NRO and NSP, check the Nexus artwork and button prompts,
 open Fetch HATS Pack and confirm the current HOC, No-HOC and Full assets, then test

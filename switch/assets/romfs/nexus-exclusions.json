@@ -362,6 +362,8 @@
     "wipeout",
     "atmosphere/usb_content",
     "config/nexusmanager",
-    "config/nexus-manager"
+    "config/nexus-manager",
+    "atmosphere/usb_badges",
+    "atmosphere/usb_content-repair.pending"
   ]
 }

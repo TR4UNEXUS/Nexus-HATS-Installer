@@ -340,5 +340,50 @@ int main() {
     put("config/nexus-hats-installer/policy.txt", MM_CONTENTS_PROTECTION_MARKER "\nP fallout1\n");
     assert(load_contents_policy("config/nexus-hats-installer/policy.txt") == FR_INVALID_PARAMETER);
     assert(folder_delete("saltysd/new.bin") == FR_OK && nodes.contains("saltysd/new.bin"));
-    std::cout << "Payload copy/delete protection and GitHub exclusion tests passed.\n";
+    // Exercise the operations used by all four install modes with no remote
+    // exclusions. Live maps and repair state must survive; foreign maps must
+    // never be installed, even if the target folder does not exist yet.
+    const std::vector<std::string> library = {
+        "atmosphere/usb_content/title_map.bin", "atmosphere/usb_content/title_content_map.bin",
+        "atmosphere/usb_content/content_locations.bin", "atmosphere/usb_content/title_map.bin.bak",
+        "atmosphere/usb_content/title_content_map.bin.tmp", "atmosphere/usb_content/future/nested.bin",
+        "atmosphere/usb_badges/0100000000010000-0.ubg", "atmosphere/usb_badges/disabled",
+        "atmosphere/usb_content-repair.pending", "atmosphere/usb_content-repair-0123456789abcdef/journal.bin",
+        "atmosphere/usb_content-repair-0123456789abcdef/before/title_map.bin",
+        "atmosphere/usb_content-recovery-0123456789abcdef/quarantined.bin"
+    };
+    for (int mode = 0; mode < 4; ++mode) {
+        nodes.clear();
+        put("config/nexus-hats-installer/policy.txt", MM_CONTENTS_PROTECTION_MARKER "\nEND\n");
+        assert(load_contents_policy("config/nexus-hats-installer/policy.txt") == FR_OK);
+        for (const auto& p : library) { put(p, "live USB data"); put(staging + p, "foreign stale data"); }
+        put("atmosphere/package3", "old core"); put(staging + "atmosphere/package3", "new core");
+        put("bootloader/update.bin", "old bootloader"); put("switch/daybreak.nro", "old utility");
+        const std::string absent = "atmosphere/usb_content-recovery-ffffffffffffffff/new.bin";
+        put(staging + absent, "foreign recovery");
+        traversed.clear(); modified.clear();
+        if (mode >= 1) assert(folder_delete("sd:/atmosphere") == FR_OK);
+        if (mode >= 2) assert(folder_delete("sd:/bootloader") == FR_OK);
+        if (mode >= 3) assert(folder_delete("sd:/switch") == FR_OK);
+        assert(folder_copy((staging + "atmosphere").c_str(), "sd:/") == FR_OK);
+        for (const auto& p : library) assert(nodes.at(p).data == "live USB data");
+        assert(!nodes.contains(absent));
+        for (const auto& p : modified) for (const auto& protected_file : library) assert(p != protected_file);
+        assert(nodes.at("atmosphere/package3").data == "new core");
+        assert(folder_delete(("sd:/" + staging).c_str()) == FR_OK);
+        for (const auto& p : library) assert(nodes.at(p).data == "live USB data");
+    }
+    nodes.clear();
+    put("config/nexus-hats-installer/policy.txt", MM_CONTENTS_PROTECTION_MARKER "\nEND\n");
+    assert(load_contents_policy("config/nexus-hats-installer/policy.txt") == FR_OK);
+    put(staging + "atmosphere/package3", "new core");
+    for (const auto& p : library) put(staging + p, "foreign library");
+    assert(folder_copy((staging + "atmosphere").c_str(), "sd:/") == FR_OK);
+    for (const auto& p : library) {
+        assert(!nodes.contains(p));
+        assert(file_copy((staging + p).c_str(), p.c_str()) == FR_OK);
+        assert(!nodes.contains(p));
+    }
+    assert(nodes.at("atmosphere/package3").data == "new core");
+    std::cout << "Payload copy/delete protection and GitHub exclusion tests passed (all four USB-library install modes).\n";
 }
