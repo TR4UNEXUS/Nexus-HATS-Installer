@@ -1,0 +1,61 @@
+{
+  "mode": "Built-in image_gen",
+  "palette": {
+    "background": "#0B1120",
+    "blue": "#5B8DEF",
+    "purple": "#8571D4"
+  },
+  "reference": "Nexus Manager's existing metallic Nexus N icon; original installer layout and pearl/silver 3D icon style retained.",
+  "assets": [
+    {
+      "name": "fetch-hats",
+      "prompt": "Use case: product-mockup. Production raster asset for Nexus HATS Installer, keeping the original installer's polished soft 3D icon style. One coherent object centred on genuinely transparent background, generous clear 15% margins. Satin pearl-white ceramic and brushed silver surfaces, restrained cool blue #5B8DEF and violet #8571D4 accents, shallow three-quarter perspective, soft upper-left studio lighting, crisp silhouette legible at 96px. No text, no badge, no frame, no backdrop, no magenta, no mascot, no magical sparkles. Consistent materials and proportions across the set. Subject: an open software package box with a chunky downward download arrow in a smooth blue-to-violet blend floating over it. Fine embossed geometric N on front. White box with deep navy inner lining.",
+      "transparent": true,
+      "source": "nexus-source/fetch-hats.png"
+    },
+    {
+      "name": "fetch-firmware",
+      "prompt": "Use case: product-mockup. Production raster asset for Nexus HATS Installer, keeping the original installer's polished soft 3D icon style. One coherent object centred on genuinely transparent background, generous clear 15% margins. Satin pearl-white ceramic and brushed silver surfaces, restrained cool blue #5B8DEF and violet #8571D4 accents, shallow three-quarter perspective, soft upper-left studio lighting, crisp silhouette legible at 96px. No text, no badge, no frame, no backdrop, no magenta, no mascot, no magical sparkles. Consistent materials and proportions across the set. Subject: a square system microchip with a satin-white centre, eight tidy metallic pins, and an embossed downward blue-to-violet arrow on its centre. No circuit board.",
+      "transparent": true,
+      "source": "nexus-source/fetch-firmware.png"
+    },
+    {
+      "name": "cheats",
+      "prompt": "Use case: product-mockup. Production raster asset for Nexus HATS Installer, keeping the original installer's polished soft 3D icon style. One coherent object centred on genuinely transparent background, generous clear 15% margins. Satin pearl-white ceramic and brushed silver surfaces, restrained cool blue #5B8DEF and violet #8571D4 accents, shallow three-quarter perspective, soft upper-left studio lighting, crisp silhouette legible at 96px. No text, no badge, no frame, no backdrop, no magenta, no mascot, no magical sparkles. Consistent materials and proportions across the set. Subject: a symmetrical unbranded game controller with white body, graphite sticks, and a restrained combination of blue and violet buttons. No floating sparkles, symbols or extra objects.",
+      "transparent": true,
+      "source": "nexus-source/cheats.png"
+    },
+    {
+      "name": "advanced-options",
+      "prompt": "Use case: product-mockup. Production raster asset for Nexus HATS Installer, keeping the original installer's polished soft 3D icon style. One coherent object centred on genuinely transparent background, generous clear 15% margins. Satin pearl-white ceramic and brushed silver surfaces, restrained cool blue #5B8DEF and violet #8571D4 accents, shallow three-quarter perspective, soft upper-left studio lighting, crisp silhouette legible at 96px. No text, no badge, no frame, no backdrop, no magenta, no mascot, no magical sparkles. Consistent materials and proportions across the set. Subject: one precise white and brushed titanium gear with a blue-to-violet inner ring, small navy central hole, friendly softly rounded teeth.",
+      "transparent": true,
+      "source": "nexus-source/advanced-options.png"
+    },
+    {
+      "name": "file-browser",
+      "prompt": "Use case: product-mockup. Production raster asset for Nexus HATS Installer, keeping the original installer's polished soft 3D icon style. One coherent object centred on genuinely transparent background, generous clear 15% margins. Satin pearl-white ceramic and brushed silver surfaces, restrained cool blue #5B8DEF and violet #8571D4 accents, shallow three-quarter perspective, soft upper-left studio lighting, crisp silhouette legible at 96px. No text, no badge, no frame, no backdrop, no magenta, no mascot, no magical sparkles. Consistent materials and proportions across the set. Subject: a single slightly open file folder with pearl-white outer cover, blue inner tab and violet inner lining. No documents with writing.",
+      "transparent": true,
+      "source": "nexus-source/file-browser.png"
+    },
+    {
+      "name": "uninstall-components",
+      "prompt": "Use case: product-mockup. Production raster asset for Nexus HATS Installer, keeping the original installer's polished soft 3D icon style. One coherent object centred on genuinely transparent background, generous clear 15% margins. Satin pearl-white ceramic and brushed silver surfaces, restrained cool blue #5B8DEF and violet #8571D4 accents, shallow three-quarter perspective, soft upper-left studio lighting, crisp silhouette legible at 96px. No text, no badge, no frame, no backdrop, no magenta, no mascot, no magical sparkles. Consistent materials and proportions across the set. Subject: a small pearl-white waste bin with a silver lid, discreet violet trim and blue recessed vertical slots. Calm precise utility icon, no warning symbol.",
+      "transparent": true,
+      "source": "nexus-source/uninstall-components.png"
+    },
+    {
+      "name": "background",
+      "prompt": "Use case: identity-preserve. Use the supplied image ONLY as the reference for the exact interlocking angular metallic Nexus N monogram. Create a new 16:9 production app wallpaper for Nexus HATS Installer, ideally1280x720. Keep the recognisable angular silver N logo but recolour all neon magenta lighting to restrained blue and violet. Near-black navy canvas #0B1120, subtle cool blue atmospheric light along the right edge, gentle violet shading at far upper-right. A low-contrast, satin metallic engraving of the Nexus N occupies only the UPPER-RIGHT, centred at86%width,29%height, about17%canvaswidth. The entire left70% and lower55% must be quiet, dark and empty for live text and three UI cards. One very faint broad contour around the far right edge. No monkey mascot, no words, no letters other than logo, no interface, no grids, no circuitry, no pink, no busy decoration. Match the existing installer's calm dark wallpaper style, with blue and purple Nexus identity.",
+      "transparent": false,
+      "ref": "Project owner's existing metallic Nexus N logo",
+      "source": "nexus-source/background.png"
+    },
+    {
+      "name": "app-icon",
+      "prompt": "Use case: identity-preserve. Edit this Nexus app icon for Nexus HATS Installer while preserving its exact interlocking angular N monogram silhouette. Replace magenta lighting with an elegant blend of cool blue #5B8DEF and muted violet #8571D4. Metallic satin silver and pearl surfaces. Remove all tiny circuit traces and busy decorations. Quiet deep navy #0B1120 background with subtle blue-purple edge illumination. Large centred N fills70% of the square canvas, 15%margin. Premium clean rendered application icon, crisp silhouette readable at128px. No words, no other logos, no extra symbols, no border, no pink, no busy neon. Square image.",
+      "transparent": false,
+      "ref": "Project owner's existing metallic Nexus N logo",
+      "source": "nexus-source/app-icon.png"
+    }
+  ]
+}
