@@ -326,11 +326,14 @@ void PackDetailsMenu::Draw(NVGcontext* vg, Theme* theme) {
     float y = GetY() + 20.f;
 
     // Title
-    std::string display_name = m_release.name.empty() ? m_release.tag_name : m_release.name;
+    const auto display_name = PackDisplayName(m_release);
+    nvgSave(vg);
+    nvgIntersectScissor(vg, MARGIN, y, content_width, 40.f);
     gfx::drawTextArgs(vg, SCREEN_WIDTH / 2.f, y, 28.f,
         NVG_ALIGN_CENTER | NVG_ALIGN_TOP,
         theme->GetColour(ThemeEntryID_TEXT_SELECTED),
         "%s", display_name.c_str());
+    nvgRestore(vg);
     y += 50.f;
 
     // Info row - show date and size from release data
@@ -345,7 +348,7 @@ void PackDetailsMenu::Draw(NVGcontext* vg, Theme* theme) {
     gfx::drawTextArgs(vg, MARGIN, y + 25.f, 18.f,
         NVG_ALIGN_LEFT | NVG_ALIGN_TOP,
         theme->GetColour(ThemeEntryID_TEXT_INFO),
-        "Size: %.1f MB", size_mb);
+        "Size: %.1f MiB", size_mb);
 
     if (!m_metadata.firmware.empty()) {
         gfx::drawTextArgs(vg, MARGIN + 200.f, y, 18.f,

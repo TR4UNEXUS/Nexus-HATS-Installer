@@ -1,5 +1,15 @@
 # Nexus adaptation checks
 
+`app_version_test.cpp` checks numeric app-version comparisons for both NSP and
+NRO installs, including missing receipts, same-version reuploads, older Latest
+releases, multi-digit versions and conflicting release/asset versions. Compile
+with the yyjson object as below; optional arguments are saved installer and pack
+`releases/latest` responses. It also checks compact names for the three packs.
+
+From 1.0.2 the running version is authoritative. Receipts remain installation
+records, but cannot trigger a same-version prompt or hide a newer version after a
+manual downgrade. New installer assets need a version in their filename or tag.
+
 `nexus_release_test.cpp` checks mixed HATS/app/Formatter attachments, future pack
 names, optional policy fallback and mandatory USB-data protection. It accepts a
 saved response from the Nexus releases/latest API as its first argument. Compile
@@ -89,7 +99,7 @@ Before release, also build the full NRO and bundled payload with devkitPro and v
 - On a disposable SD-card copy, verify GTA V and another mod are excluded from backups, unchanged after online/cached installs, and that known sysmodules update. Check all four install modes.
 - Include a game NRO, a port directory, saves inside a known utility directory and an unknown overlay under `/switch`: none should be backed up, removed or overwritten. Confirm the recognised utility files update.
 - Verify the full-package updater installs the NRO, payload, wallpaper and three icons, and that an old payload is rejected before Hekate is modified. Incomplete or wrong-sized artwork must be rejected before replacement starts.
-- Publish a test Latest release with an arbitrary tag and a Nexus-HATS-Installer-prefixed ZIP. Verify the app offers it, records the upload only after a successful install, skips it on the next launch, and detects a replacement ZIP under the same tag. Multiple ZIPs must open a choice list; an unrelated ZIP must fail validation without replacing installed files.
+- Use a test feed with a newer versioned installer ZIP/NSP. Verify the app offers it, records the upload only after successful installation, and skips equal/older versions on the next launch even when the receipt is missing. An unrelated ZIP must fail validation without replacing installed files.
 - Check the refreshed home screen on hardware: all three cards fit, touch and controller selection agree, text is readable and the wallpaper/icons load correctly.
 
 Host tests do not validate device services, real SD-card I/O, UI layout or reboot behavior. A complete devkitPro build and device checks are required before release.

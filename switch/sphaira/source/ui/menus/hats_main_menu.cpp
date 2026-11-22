@@ -309,25 +309,18 @@ void MainMenu::CheckForUpdates(bool manual) {
                 return;
             }
 
-            fs::FsNativeSd fs;
-            std::vector<u8> receipt;
-            const auto receipt_path = installed_nsp ? self_update::ReceiptPath : UPDATE_RECEIPT_PATH;
-            if (R_SUCCEEDED(fs.read_entire_file(receipt_path, receipt)) &&
-                IsInstalledAppRelease(entries, std::string(receipt.begin(), receipt.end()))) {
-                log_write("update check: Latest upload is already installed\n");
-                if (manual) App::Notify("Nexus HATS Installer is up to date.");
-                return;
-            }
-
-            // A first manual NSP installation has no asset receipt. Seed it for
-            // our exact running release; future reuploads still compare identity.
-            if (installed_nsp && receipt.empty() && entries.size() == 1 &&
-                entries[0].tag_name == "v" HATS_TOOLS_VERSION) {
-                const auto baseline = AppUpdateReceipt(entries[0]);
-                const auto rc = sphaira::hats::ReplaceBundledFile(fs, receipt_path,
-                    std::span(reinterpret_cast<const u8*>(baseline.data()), baseline.size()));
-                log_write("self-update: initial release receipt: 0x%X\n", rc);
-                if (manual) App::Notify("Nexus HATS Installer is up to date.");
+            const bool version_known = std::any_of(entries.begin(), entries.end(),
+                [](const auto& entry) { return AppReleaseVersion(entry).has_value(); });
+            std::erase_if(entries, [](const auto& entry) {
+                return !IsNewerAppRelease(entry, HATS_TOOLS_VERSION);
+            });
+            // Compare the running build for both NRO and NSP. Manual installs
+            // and copied SD cards may have no receipt, or one from another build.
+            if (entries.empty()) {
+                log_write("update check: no newer installer than %s (version known=%d)\n",
+                    HATS_TOOLS_VERSION, version_known);
+                if (manual) App::Notify(version_known ? "Nexus HATS Installer is up to date." :
+                    "Could not determine the latest installer version. Please try again later.");
                 return;
             }
 

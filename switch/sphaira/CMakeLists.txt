@@ -33,7 +33,7 @@ option(ENABLE_DEVOPTAB_SFTP "" OFF)
 # MINOR: new features (backwards compatible)
 # PATCH: bug fixes (backwards compatible)
 set(HATS_TOOLS_APP_NAME "Nexus HATS Installer")
-set(HATS_TOOLS_VERSION "1.0.1")
+set(HATS_TOOLS_VERSION "1.0.2")
 set(sphaira_VERSION ${HATS_TOOLS_VERSION})
 
 project(nexus-hats-installer

@@ -579,19 +579,15 @@ void PackMenu::Draw(NVGcontext* vg, Theme* theme) {
             }
         }
 
-        // Format date (published_at is like "2024-12-17T10:00:00Z")
-        std::string date = release.published_at.substr(0, 10);
-
-        // Display name
-        std::string display_name = release.name.empty() ? release.tag_name : release.name;
-        if (release.prerelease) {
-            display_name += " (Pre-Release)";
-        }
-
+        const auto display_name = PackDisplayName(release);
+        // Reserve a separate size column even for unfamiliar future pack names.
+        nvgSave(vg);
+        nvgIntersectScissor(vg, x + text_xoffset, y, w - 150.f, h);
         gfx::drawTextArgs(vg, x + text_xoffset, y + h / 2.f, 20.f,
             NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE,
             theme->GetColour(text_id),
-            "[%s] %s", date.c_str(), display_name.c_str());
+            "%s", display_name.c_str());
+        nvgRestore(vg);
 
         // Size on the right
         if (release.size > 0) {
@@ -599,7 +595,7 @@ void PackMenu::Draw(NVGcontext* vg, Theme* theme) {
             gfx::drawTextArgs(vg, x + w - text_xoffset, y + h / 2.f, 16.f,
                 NVG_ALIGN_RIGHT | NVG_ALIGN_MIDDLE,
                 theme->GetColour(ThemeEntryID_TEXT_INFO),
-                "%.1f MB", size_mb);
+                "%.1f MiB", size_mb);
         }
     });
 }
@@ -682,7 +678,7 @@ void PackMenu::DownloadAndInstall() {
     }
 
     const auto& release = m_releases[m_index];
-    std::string display_name = release.name.empty() ? release.tag_name : release.name;
+    const auto display_name = PackDisplayName(release);
 
     // Get staging path from config for display message
     auto app = App::GetApp();
