@@ -2,6 +2,7 @@
 #include <libs/fatfs/ff.h>
 extern "C" {
 #include "../payload/source/fs.h"
+#include "../payload/source/boot_config.h"
 }
 #include "../shared/install_protection.h"
 #include <algorithm>
@@ -18,6 +19,7 @@ struct DirHandle { std::vector<std::string> children; size_t index = 0; };
 static std::map<std::string, Node> nodes;
 static std::vector<std::string> traversed, modified;
 static std::string fail_stat;
+static bool fail_sync=false;
 
 static std::string path(const char* value) {
     std::string s = mm_sd_relative_path(value);
@@ -69,7 +71,7 @@ int f_write(FIL* file, const void* buffer, UINT length, UINT* written) {
     *written = length;
     return FR_OK;
 }
-int f_sync(FIL*) { return FR_OK; }
+int f_sync(FIL*) { return fail_sync ? FR_DISK_ERR : FR_OK; }
 int f_stat(const char* name, FILINFO* info) {
     const auto s = path(name);
     if (s == fail_stat) return FR_DISK_ERR;
@@ -385,5 +387,62 @@ int main() {
         assert(!nodes.contains(p));
     }
     assert(nodes.at("atmosphere/package3").data == "new core");
+    const std::string ini="bootloader/hekate_ipl.ini";
+    const std::string backup="config/nexus-hats-installer/hekate_ipl.ini.bak";
+    const std::string old_ini="[config]\r\nautoboot=2\r\nbootwait=7\r\n# keep my settings\r\n"
+        "[My emu]\r\npkg3=atmosphere/package3\r\nkip1=atmosphere/kips/nexus-loader.kip\r\nkip1=atmosphere/kips/hoc.kip\r\nemummcforce=1\r\nicon=bootloader/res/icon_payload.bmp\r\n"
+        "[My sys]\r\nfss0=atmosphere/package3\r\nemummc_force_disable=1\r\nicon=old.bmp\r\n"
+        "[Stock]\r\npkg3=atmosphere/package3\r\nstock=1\r\nemummc_force_disable=1\r\nicon=stock.bmp\r\n"
+        "[Other payload]\r\npayload=bootloader/payloads/tool.bin\r\nicon=custom.bmp\r\n";
+    const std::string pack_ini="[CFW (emuMMC)]\npkg3=atmosphere/package3\nemummcforce=1\nicon=bootloader/res/icon_payload_emu.bmp\n"
+        "[CFW (sysMMC)]\npkg3=atmosphere/package3\nemummc_force_disable=1\nicon=bootloader/res/atmosphere.bmp\n";
+    auto expected=old_ini;
+    auto replace=[&](const std::string& from,const std::string& to) { expected.replace(expected.find(from),from.size(),to); };
+    replace("icon=bootloader/res/icon_payload.bmp","icon=bootloader/res/icon_payload_emu.bmp");
+    replace("icon=old.bmp","icon=bootloader/res/atmosphere.bmp");
+    const std::string bmp="BM"+std::string(64,'\0');
+    for (int mode=0;mode<4;++mode) {
+        nodes.clear();
+        put("config/nexus-hats-installer/policy.txt",MM_CONTENTS_PROTECTION_MARKER "\nEND\n");
+        assert(load_contents_policy("config/nexus-hats-installer/policy.txt")==FR_OK);
+        put(backup,old_ini);put(ini,"temporary installer autoboot");
+        put(staging+ini,pack_ini);
+        for (const auto& name:{"bootloader/res/icon_payload_emu.bmp","bootloader/res/atmosphere.bmp"}) put(staging+name,bmp);
+        if (mode>=2) assert(folder_delete("sd:/bootloader")==FR_OK);
+        assert(folder_copy((staging+"bootloader").c_str(),"sd:/")==FR_OK);
+        assert(folder_delete(("sd:/"+staging).c_str())==FR_OK);
+        unsigned count=0;
+        assert(restore_hekate_config(true,&count)==FR_OK && count==2);
+        assert(nodes.at(ini).data==expected && !nodes.contains(backup));
+        // Repeating the same upgrade is idempotent.
+        put(backup,expected);put(ini,pack_ini);
+        assert(restore_hekate_config(true,&count)==FR_OK && count==0);
+        assert(nodes.at(ini).data==expected);
+        // Failure/cancellation must restore the old configuration exactly.
+        put(backup,old_ini);put(ini,pack_ini);
+        assert(restore_hekate_config(false,&count)==FR_OK && count==0);
+        assert(nodes.at(ini).data==old_ini);
+        // Standard packs do not apply themed icons.
+        put(backup,old_ini);put(ini,"[Standard]\npkg3=atmosphere/package3\nemummcforce=1\nicon=standard.bmp\n");
+        assert(restore_hekate_config(true,&count)==FR_OK && count==0);
+        assert(nodes.at(ini).data==old_ini);
+        // A failed flush retains the original recovery copy for the next launch.
+        put(backup,old_ini);put(ini,pack_ini);fail_sync=true;
+        assert(restore_hekate_config(true,&count)==FR_DISK_ERR);
+        assert(nodes.at(backup).data==old_ini);fail_sync=false;
+        assert(restore_hekate_config(false,&count)==FR_OK && nodes.at(ini).data==old_ini);
+        // No original config means the newly installed pack stays in place.
+        put(ini,pack_ini);assert(restore_hekate_config(true,&count)==FR_NO_FILE);
+        assert(nodes.at(ini).data==pack_ini);
+    }
+    unsigned count=0;
+    nodes.clear();put(backup,old_ini);put(ini,pack_ini);
+    assert(restore_hekate_config(true,&count)==FR_OK && count==0); // missing artwork
+    assert(nodes.at(ini).data==old_ini);
+    put(backup,"");assert(restore_hekate_config(false,&count)==FR_INVALID_PARAMETER);
+    assert(nodes.contains(backup));nodes.erase(backup);
+    put("config/nexus-hats-installer/legacy-hekate_ipl.ini.bak",old_ini);
+    assert(restore_hekate_config(false,&count)==FR_OK && nodes.at(ini).data==old_ini);
+    std::cout << "Themed Launch icons, all install modes, user settings, standard packs and recovery checks passed.\n";
     std::cout << "Payload copy/delete protection and GitHub exclusion tests passed (all four USB-library install modes).\n";
 }

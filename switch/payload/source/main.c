@@ -30,14 +30,12 @@
 #include <utils/sprintf.h>
 
 #include "fs.h"
+#include "boot_config.h"
 #include "../../shared/install_protection.h"
 
 // Configuration
 #define STAGING_PATH      "sd:/config/nexus-hats-installer/hats-staging"
 #define PAYLOAD_PATH      "sd:/payload.bin"
-#define HEKATE_INI_BAK   "sd:/config/nexus-hats-installer/hekate_ipl.ini.bak"
-#define HEKATE_INI_LEGACY_BAK "sd:/config/nexus-hats-installer/legacy-hekate_ipl.ini.bak"
-#define HEKATE_INI       "sd:/bootloader/hekate_ipl.ini"
 #define CONFIG_PATH       "sd:/config/nexus-hats-installer/config.ini"
 #define ATMOSPHERE_PATH   "sd:/atmosphere"
 #define BOOTLOADER_PATH   "sd:/bootloader"
@@ -214,65 +212,14 @@ static int file_exists(const char *path) {
     return (f_stat(path, &fno) == FR_OK);
 }
 
-// Restore hekate_ipl.ini from backup (called after installation or on error)
-// Note: The backup and modification of hekate_ipl.ini is now handled by the NRO
-// when the user clicks "Launch". The payload only needs to restore it.
-static bool restore_hekate_ini(void) {
-    FIL fp_bak;
-    FIL fp_dst;
-    UINT bytes_read;
-    UINT bytes_written;
-    u8 *buf;
-
-    if (f_open(&fp_bak, HEKATE_INI_BAK, FA_READ) != FR_OK) {
-        if (f_open(&fp_bak, HEKATE_INI_LEGACY_BAK, FA_READ) != FR_OK) {
-            return false;
-        }
-    }
-
-    u32 bak_size = f_size(&fp_bak);
-    if (bak_size == 0) {
-        f_close(&fp_bak);
-        f_unlink(HEKATE_INI_BAK);
-        f_unlink(HEKATE_INI_LEGACY_BAK);
-        return false;
-    }
-
-    buf = (u8 *)malloc(bak_size);
-    if (buf == NULL) {
-        f_close(&fp_bak);
-        return false;
-    }
-
-    if (f_read(&fp_bak, buf, bak_size, &bytes_read) != FR_OK || bytes_read != bak_size) {
-        f_close(&fp_bak);
-        free(buf);
-        return false;
-    }
-    f_close(&fp_bak);
-
-    f_mkdir("sd:/bootloader");
-
-    // Overwrite hekate_ipl.ini with backup content
-    bool success = false;
-    if (f_open(&fp_dst, HEKATE_INI, FA_CREATE_ALWAYS | FA_WRITE) == FR_OK) {
-        if (f_write(&fp_dst, buf, bak_size, &bytes_written) == FR_OK && bytes_written == bak_size) {
-            // Sync to disk before closing!
-            f_sync(&fp_dst);
-            success = true;
-        }
-        f_close(&fp_dst);
-    }
-
-    free(buf);
-
-    // Delete the backup file after successful restore
-    if (success) {
-        f_unlink(HEKATE_INI_BAK);
-        f_unlink(HEKATE_INI_LEGACY_BAK);
-    }
-
-    return success;
+// Recovery is unchanged on failure; completed themed installs refresh only icons.
+static bool install_files_copied = false;
+static void restore_boot_settings(bool installed) {
+    unsigned icons = 0;
+    int result = restore_hekate_config(installed, &icons);
+    if (result == FR_NO_FILE || result == FR_NO_PATH) return;
+    print_result("Restore Hekate settings", result);
+    if (result == FR_OK && icons) gfx_printf("[OK] Nexus EMU / SYS CFW Launch icons updated\n");
 }
 
 // Parse config.ini to get install mode
@@ -640,6 +587,8 @@ static void do_install(void) {
         return;
     }
 
+    install_files_copied = true;
+
     // Step 4: Cleanup staging folder
     set_color(COLOR_YELLOW);
     gfx_printf("\nStep 4: Cleaning up staging folder...\n");
@@ -720,11 +669,7 @@ void ipl_main(void) {
         set_color(COLOR_WHITE);
 
         // Restore hekate_ipl.ini since installation won't proceed
-        if (restore_hekate_ini()) {
-            set_color(COLOR_GREEN);
-            gfx_printf("[OK] hekate_ipl.ini restored\n");
-            set_color(COLOR_WHITE);
-        }
+        restore_boot_settings(false);
 
         // Launch payload if available
         if (file_exists(PAYLOAD_PATH)) {
@@ -749,11 +694,7 @@ void ipl_main(void) {
     do_install();
 
     // Restore hekate_ipl.ini from backup after installation completes
-    if (restore_hekate_ini()) {
-        set_color(COLOR_GREEN);
-        gfx_printf("\n[OK] hekate_ipl.ini restored\n");
-        set_color(COLOR_WHITE);
-    }
+    restore_boot_settings(install_files_copied);
 
     // Logging disabled
     // log_close();

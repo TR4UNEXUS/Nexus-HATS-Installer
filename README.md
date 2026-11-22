@@ -21,14 +21,15 @@ Pack names and versions are not fixed in the app. New ZIP variants added to the
 release GitHub marks as Latest appear when you reopen the pack list or press X
 to refresh. Drafts, prereleases and known non-pack attachments are excluded.
 
-## What's new in 1.0.2
+## What's new in 1.0.3
 
-- Pack entries show the version, pack name and download size, with room between
-  the name and size. Long release announcements no longer fill every row.
-- Fixed repeated update prompts when the latest installer is already installed.
-  Both the NSP and NRO editions compare version numbers, including after a
-  manual installation or when the saved update receipt is missing.
-- Existing USB game-map protection remains included.
+- The Nexus-themed HOC pack now applies the EMU and SYS CFW Launch icons after
+  installation, instead of restoring the old red gear settings.
+- Existing autoboot settings, boot commands, stock entries and unrelated
+  payload icons are retained. Failed or cancelled installs restore the original
+  settings; the recovery copy is kept until the restored file is verified.
+- Compact pack names, accurate app-update prompts and USB game-map protection
+  from the previous releases remain included.
 
 ## Install
 
@@ -41,7 +42,7 @@ NRO is not needed. For hbmenu, extract the release ZIP onto the SD card and keep
 its included support files together. See the [build instructions](switch/README.md)
 to build either edition yourself.
 
-Version 1.0.2 has passed compilation and automated checks. Switch testing
+Version 1.0.3 has passed compilation and automated checks. Switch testing
 and feedback are welcome, particularly for downloads, installation and reboot.
 
 ## Existing games and settings
@@ -70,7 +71,7 @@ HATS packs come from [TR4UNEXUS/Nexus-USB-HATS](https://github.com/TR4UNEXUS/Nex
 Updates to the installer itself come from **this repository**. Both editions
 check for an update on launch; X checks manually. Only a newer version prompts
 for installation. Installer assets use names such as
-`Nexus-HATS-Installer-1.0.2.nsp` or `Nexus-HATS-Installer-1.0.2.zip`.
+`Nexus-HATS-Installer-1.0.3.nsp` or `Nexus-HATS-Installer-1.0.3.zip`.
 
 ## Building and contributing
 

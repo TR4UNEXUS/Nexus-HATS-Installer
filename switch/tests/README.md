@@ -1,5 +1,11 @@
 # Nexus adaptation checks
 
+`payload_fs_test.cpp` runs the actual boot-config restoration too: themed icons
+after all four install modes, renamed CFW profiles, preserved boot settings,
+standard packs, failed installs, missing artwork, legacy backups and failed
+flush recovery. It verifies that restoring the saved INI cannot undo the new
+icons and that the recovery file survives a failed write.
+
 `app_version_test.cpp` checks numeric app-version comparisons for both NSP and
 NRO installs, including missing receipts, same-version reuploads, older Latest
 releases, multi-digit versions and conflicting release/asset versions. Compile
@@ -82,7 +88,8 @@ Run the actual payload filesystem routines against an in-memory SD card:
 
 ```sh
 cc -std=c11 -I tests/payload_stubs -c payload/source/fs.c -o /tmp/payload_fs.o
-c++ -std=c++20 -I tests/payload_stubs tests/payload_fs_test.cpp /tmp/payload_fs.o -o /tmp/payload_fs_test
+cc -std=c11 -I tests/payload_stubs -c payload/source/boot_config.c -o /tmp/boot_config.o
+c++ -std=c++20 -I tests/payload_stubs tests/payload_fs_test.cpp /tmp/payload_fs.o /tmp/boot_config.o -o /tmp/payload_fs_test
 /tmp/payload_fs_test
 ```
 
