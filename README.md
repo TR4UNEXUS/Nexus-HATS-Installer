@@ -83,6 +83,10 @@ problem, include your console model, firmware version, the pack you chose and
 what happened. Pull requests for fixes, clearer navigation and better
 compatibility are welcome too.
 
+## Support Nexus
+
+If Nexus has been useful to you, consider [buying me a coffee](https://www.buymeacoffee.com/TechRepairs4u). Your support gives me more time to build new features and test fixes. Thanks for supporting my work!
+
 ## Credits and licence
 
 Adapted from [MM HATS Installer by TechRepairs4U](https://github.com/TechRepairs4U/MM-HATS-INSTALLER),
